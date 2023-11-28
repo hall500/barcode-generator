@@ -38,13 +38,23 @@ const guid = () => {
 };
 
 const generateOrderId = (length = 14) => {
-    let result = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
+  const timestamp = Date.now().toString();
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+
+  let result = '';
+
+  // Include characters from the timestamp
+  for (let i = 0; i < timestamp.length; i++) {
+      result += timestamp.charAt(i);
+  }
+
+  // Include random characters for additional randomness
+  for (let i = result.length; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+
+  return result;
 };
 
 const addTextToBarcodeImage = async (image) => {
@@ -61,8 +71,8 @@ const addTextToBarcodeImage = async (image) => {
     })
     .then(function (font) {
         // Calculate the position to place the text at the bottom right
-        var x = loadedImage.bitmap.width - Jimp.measureText(font, imageCaption);
-        var y = loadedImage.bitmap.height - 20; // You can adjust the value for vertical positioning
+        var x = (loadedImage.bitmap.width - Jimp.measureText(font, imageCaption)) / 2;
+        var y = loadedImage.bitmap.height - 30; // You can adjust the value for vertical positioning
 
         loadedImage.print(font, x, y, imageCaption)
                    .write(fileName);
@@ -129,13 +139,13 @@ async function generateUUIDsAndBarcodes(start = 0, count = 1000) {
 
     const end = start + count;
     for (let i = start; i <= end; i++) {
-        const code_id = guid();
+        const code_id = generateOrderId(8);
         const num = (start > 0) ? i : i + 1;
         //const code_url = `https://rider.transpay.com/${code_id}?q=${num}`;
-        const code_url = `https://transpay.vercel.app/barcode/${code_id}`;
+        const code_url = `https://transpay.vercel.app/status/${code_id}`;
         const qrCodeUrl = getQRCode(code_url);
 
-        if(i < count) uuidData.push({
+        if(i < end) uuidData.push({
             id: num,
             code_id,
             code_url,
@@ -143,7 +153,7 @@ async function generateUUIDsAndBarcodes(start = 0, count = 1000) {
 
         // Download the QR code image
         const qrCodeResponse = await axios.get(qrCodeUrl, { responseType: 'stream' });
-        const qrCodeFilePath = path.join(outputFolderPath, `${num}_qr.png`);
+        const qrCodeFilePath = path.join(outputFolderPath, `${code_id}_qr.png`);
 
         qrCodeResponse.data.pipe(fs.createWriteStream(qrCodeFilePath));
     }
