@@ -1,0 +1,4 @@
+barcodes/
+node_modules/
+package-lock.json
+transpay_barcodes.csv
