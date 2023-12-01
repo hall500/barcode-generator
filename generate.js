@@ -7,6 +7,10 @@ const yargs = require('yargs');
 const { Readable } = require('stream');
 const csv = require('csv-parser');
 
+//Sample Command
+// npm start -- --start=0 --count=20 --generate=image
+// npm start -- --generate=text
+
 // Define the output folder path
 const outputFolderPath = path.join(__dirname, 'barcodes');
 const csvFilePath = path.join(__dirname, 'transpay_barcodes.csv');
@@ -203,7 +207,7 @@ async function main() {
 
     fs.writeFileSync(csvFilePath, `id,code_id,barcode_url\n${csvData}`);
 
-    console.log(`Generated ${uuidCount} UUIDs and barcodes.`);
+    console.log(`Generated ${uuidData.length} UUIDs and barcodes.`);
     process.exit();
 }
 
