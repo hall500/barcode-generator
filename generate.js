@@ -142,7 +142,7 @@ async function generateUUIDsAndBarcodes(start = 0, count = 1000) {
         const code_id = generateOrderId(8);
         const num = (start > 0) ? i : i + 1;
         //const code_url = `https://rider.transpay.com/${code_id}?q=${num}`;
-        const code_url = `https://transpay.vercel.app/status/${code_id}`;
+        const code_url = `https://transpay.vercel.app/v/status/${code_id}`;
         const qrCodeUrl = getQRCode(code_url);
 
         if(i < end) uuidData.push({
