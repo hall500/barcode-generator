@@ -6,6 +6,7 @@ const Jimp = require('jimp');
 const yargs = require('yargs');
 const { Readable } = require('stream');
 const csv = require('csv-parser');
+const bwipjs = require('bwip-js');
 
 //Sample Command
 // npm start -- --start=0 --count=20 --generate=image
@@ -86,26 +87,52 @@ const addTextToBarcodeImage = async (image) => {
     });
 }
 
-const getQRCode = (text) => {
-    const baseUrl = 'https://chart.googleapis.com/chart';
-    const chartType = 'qr';
-    const width = 250;
+// const getQRCode = (text) => {
+//     const baseUrl = 'https://chart.googleapis.com/chart';
+//     const chartType = 'qr';
+//     const width = 250;
+//     const height = 250;
+
+//     // Customize the barcode parameters as needed
+//     const params = {
+//         cht: chartType,
+//         chs: `${width}x${height}`,
+//         chl: text, // Text to encode as a barcode
+//         choe: 'UTF-8',
+//     };
+
+//     const queryParams = Object.entries(params)
+//         .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+//         .join('&');
+
+//     return `${baseUrl}?${queryParams}`;
+// }
+
+const getQRCode = async (text) => {
+  const width = 250;
     const height = 250;
+  // Customize the barcode parameters as needed
+  const options = {
+      bcid: 'qrcode',  // Barcode type: qr code
+      text: text,      // Text to encode as a barcode
+      scale: 3,        // Scale factor
+      height: height,     // Height of the barcode
+      includetext: false, // Whether to include text in the barcode
+  };
 
-    // Customize the barcode parameters as needed
-    const params = {
-        cht: chartType,
-        chs: `${width}x${height}`,
-        chl: text, // Text to encode as a barcode
-        choe: 'UTF-8',
-    };
-
-    const queryParams = Object.entries(params)
-        .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-        .join('&');
-
-    return `${baseUrl}?${queryParams}`;
-}
+  // Generate the barcode using bwip-js
+  return new Promise((resolve, reject) => {
+      bwipjs.toBuffer(options, (err, png) => {
+          if (err) {
+              reject(err);
+          } else {
+              // Convert the PNG buffer to a data URL
+              const dataURL = `data:image/png;base64,${png.toString('base64')}`;
+              resolve(dataURL);
+          }
+      });
+  });
+};
 
 function listFilesInFolderStream(folderPath) {
     const readStream = new Readable({
@@ -146,8 +173,9 @@ async function generateUUIDsAndBarcodes(start = 0, count = 1000) {
         const code_id = generateOrderId(8);
         const num = (start > 0) ? i : i + 1;
         //const code_url = `https://rider.transpay.com/${code_id}?q=${num}`;
-        const code_url = `https://transpay.vercel.app/v/status/${code_id}`;
-        const qrCodeUrl = getQRCode(code_url);
+        const code_url = `https://transpaytms.com/v/status/${code_id}`;
+        const qrCodeUrl = await getQRCode(code_url);
+        console.log(qrCodeUrl);
 
         if(i < end) uuidData.push({
             id: num,
