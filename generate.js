@@ -121,18 +121,8 @@ const getQRCode = async (text) => {
       includetext: false, // Whether to include text in the barcode
   };
 
-  // Generate the barcode using bwip-js
-  return new Promise((resolve, reject) => {
-      bwipjs.toBuffer(options, (err, png) => {
-          if (err) {
-              reject(err);
-          } else {
-              // Convert the PNG buffer to a data URL
-              const dataURL = `data:image/png;base64,${png.toString('base64')}`;
-              resolve(dataURL);
-          }
-      });
-  });
+  const img = await bwipjs.toDataURL(options);
+  return img.uri;
 };
 
 function listFilesInFolderStream(folderPath) {
