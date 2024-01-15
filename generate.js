@@ -114,7 +114,6 @@ const getQRCode = async (text) => {
   const options = {
       bcid: 'qrcode',  // Barcode type: qr code
       text: text,      // Text to encode as a barcode
-      scale: 3,        // Scale factor
       width: width, //Width of the barcode
       height: height,     // Height of the barcode
       includetext: false, // Whether to include text in the barcode
