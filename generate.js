@@ -65,7 +65,6 @@ const generateOrderId = (length = 14) => {
 const addTextToBarcodeImage = async (image) => {
     var fileName = image;
     var imageCaption = image.split('/').pop().split('_')[0];
-    console.log(imageCaption);
     var loadedImage;
 
     // Load the barcode image
@@ -119,10 +118,23 @@ const getQRCode = async (text) => {
       width: width, //Width of the barcode
       height: height,     // Height of the barcode
       includetext: false, // Whether to include text in the barcode
+      backgroundcolor: 'FFFFFF', // White background color (hex)
+      paddingwidth: 30,     // Padding on all sides
+      paddingheight: 30,
   };
 
-  const img = await bwipjs.toDataURL(options);
-  return img.uri;
+  // Generate the barcode using bwip-js
+  return new Promise((resolve, reject) => {
+      bwipjs.toBuffer(options, (err, png) => {
+          if (err) {
+              reject(err);
+          } else {
+              // Convert the PNG buffer to a data URL
+              const dataURL = `data:image/png;base64,${png.toString('base64')}`;
+              resolve(dataURL);
+          }
+      });
+  });
 };
 
 function listFilesInFolderStream(folderPath) {
@@ -166,7 +178,6 @@ async function generateUUIDsAndBarcodes(start = 0, count = 1000) {
         //const code_url = `https://rider.transpay.com/${code_id}?q=${num}`;
         const code_url = `https://transpaytms.com/v/status/${code_id}`;
         const qrCodeUrl = await getQRCode(code_url);
-        console.log(qrCodeUrl);
 
         if(i < end) uuidData.push({
             id: num,
