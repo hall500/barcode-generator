@@ -108,8 +108,8 @@ const addTextToBarcodeImage = async (image) => {
 // }
 
 const getQRCode = async (text) => {
-  const width = 250;
-    const height = 250;
+  const width = 150;
+    const height = 150;
   // Customize the barcode parameters as needed
   const options = {
       bcid: 'qrcode',  // Barcode type: qr code
